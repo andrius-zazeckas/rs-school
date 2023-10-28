@@ -6,6 +6,10 @@ import './App.css';
 export const App = () => {
   const [count, setCount] = useState(0);
 
+  const age: any = 'seventeen';
+
+  console.log(age);
+
   return (
     <>
       <div>
