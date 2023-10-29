@@ -1,8 +1,11 @@
 import { Component } from 'react';
+import './Search.css';
 
 export default class Search extends Component {
+  previousSearchValue = localStorage.getItem('searchValue');
+
   state = {
-    searchValue: 'test',
+    searchValue: this.previousSearchValue ? this.previousSearchValue : '',
   };
 
   handleSearchValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -12,21 +15,21 @@ export default class Search extends Component {
   };
 
   handleSearch = () => {
-    const { searchValue } = this.state;
-
-    console.log(searchValue);
+    if (this.state.searchValue) {
+      localStorage.setItem('searchValue', this.state.searchValue);
+    }
   };
 
   render() {
     return (
-      <>
+      <div className="search">
         <input
           value={this.state.searchValue}
           onChange={this.handleSearchValueChange}
         />
         <button onClick={this.handleSearch}>Search</button>
         <p>{this.state.searchValue}</p>
-      </>
+      </div>
     );
   }
 }
