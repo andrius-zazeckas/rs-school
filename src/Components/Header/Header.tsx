@@ -4,7 +4,7 @@ export default class Header extends Component {
   render() {
     return (
       <header>
-        <h1>Hello to world of Poki</h1>
+        <h1>Welcome to the world of Star Wars</h1>
       </header>
     );
   }

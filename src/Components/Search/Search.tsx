@@ -23,12 +23,14 @@ export default class Search extends Component {
   render() {
     return (
       <div className="search">
-        <input
-          value={this.state.searchValue}
-          onChange={this.handleSearchValueChange}
-        />
-        <button onClick={this.handleSearch}>Search</button>
-        <p>{this.state.searchValue}</p>
+        <h3>Search for a character</h3>
+        <div className="search-bar">
+          <input
+            value={this.state.searchValue}
+            onChange={this.handleSearchValueChange}
+          />
+          <button onClick={this.handleSearch}>Search</button>
+        </div>
       </div>
     );
   }
