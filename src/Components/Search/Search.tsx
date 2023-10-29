@@ -1,12 +1,23 @@
 import { Component } from 'react';
 import './Search.css';
 
-export default class Search extends Component {
-  previousSearchValue = localStorage.getItem('searchValue');
+interface SearchProps {
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+}
 
-  state = {
-    searchValue: this.previousSearchValue ? this.previousSearchValue : '',
-  };
+interface SearchState {
+  searchValue: string;
+}
+
+export default class Search extends Component<SearchProps, SearchState> {
+  constructor(props: SearchProps) {
+    super(props);
+    const savedSearchValue = localStorage.getItem('searchValue');
+    this.state = {
+      searchValue: savedSearchValue || props.searchValue,
+    };
+  }
 
   handleSearchValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
@@ -15,9 +26,8 @@ export default class Search extends Component {
   };
 
   handleSearch = () => {
-    if (this.state.searchValue) {
-      localStorage.setItem('searchValue', this.state.searchValue);
-    }
+    localStorage.setItem('searchValue', this.state.searchValue);
+    this.props.onSearchChange(this.state.searchValue);
   };
 
   render() {
