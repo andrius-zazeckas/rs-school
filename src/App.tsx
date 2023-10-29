@@ -6,6 +6,7 @@ import Results from './Components/Results/Results';
 interface AppProps {}
 interface AppState {
   searchValue: string;
+  error: boolean;
 }
 
 export default class App extends Component<AppProps, AppState> {
@@ -14,17 +15,28 @@ export default class App extends Component<AppProps, AppState> {
     const savedSearchValue = localStorage.getItem('searchValue');
     this.state = {
       searchValue: savedSearchValue || '',
+      error: false,
     };
   }
   handleSearchChange = (value: string) => {
     this.setState({ searchValue: value });
   };
 
+  throwNewError = () => {
+    this.setState({
+      error: true,
+    });
+  };
   render() {
+    if (this.state.error) {
+      throw new Error('New error');
+    }
+
     const { searchValue } = this.state;
     return (
       <div className="App">
         <Header />
+        <button onClick={this.throwNewError}>Error test button</button>
         <Search
           onSearchChange={this.handleSearchChange}
           searchValue={searchValue}
