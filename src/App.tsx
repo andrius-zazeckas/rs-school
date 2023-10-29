@@ -29,7 +29,7 @@ export default class App extends Component<AppProps, AppState> {
   };
   render() {
     if (this.state.error) {
-      throw new Error('New error');
+      throw new Error('Lets test the error boundary');
     }
 
     const { searchValue } = this.state;

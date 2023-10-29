@@ -33,11 +33,8 @@ export default class ErrorBoundary extends Component<
       return (
         <div className="error-boundary">
           <h2>Error boundary</h2>
-          {/* <details style={{ whiteSpace: 'pre-wrap' }}> */}
-          {this.state.error && this.state.error.toString()}
-          <br />
-          {this.state.errorInfo.componentStack}
-          {/* </details> */}
+          <h3>{this.state.error && this.state.error.toString()}</h3>
+          <p>{this.state.errorInfo.componentStack}</p>
         </div>
       );
     }
