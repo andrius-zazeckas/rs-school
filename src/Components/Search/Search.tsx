@@ -21,12 +21,12 @@ export default class Search extends Component<SearchProps, SearchState> {
 
   handleSearchValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      searchValue: e.target.value.trim(),
+      searchValue: e.target.value,
     });
   };
 
   handleSearch = () => {
-    localStorage.setItem('searchValue', this.state.searchValue);
+    localStorage.setItem('searchValue', this.state.searchValue.trim());
     this.props.onSearchChange(this.state.searchValue);
   };
 
