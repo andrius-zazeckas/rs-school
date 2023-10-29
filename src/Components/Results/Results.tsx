@@ -15,6 +15,7 @@ interface State {
   next: string;
   previous: string;
   people: Person[];
+  loading: boolean;
 }
 
 export default class Results extends Component<Props, State> {
@@ -24,6 +25,7 @@ export default class Results extends Component<Props, State> {
       next: '',
       previous: '',
       people: [],
+      loading: false,
     };
   }
 
@@ -38,15 +40,21 @@ export default class Results extends Component<Props, State> {
     }
   }
 
-  fetchData = () => {
+  fetchData = (apiUrl?: string) => {
     const { searchValue } = this.props;
-    const apiUrl = `https://swapi.dev/api/people/${
-      searchValue ? `?search=${searchValue}` : ''
-    }`;
+    const url =
+      apiUrl ||
+      `https://swapi.dev/api/people/${
+        searchValue ? `?search=${searchValue}` : ''
+      }`;
 
-    console.log(apiUrl);
+    console.log(url);
 
-    fetch(apiUrl)
+    this.setState({
+      loading: true,
+    });
+
+    fetch(url)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -54,29 +62,57 @@ export default class Results extends Component<Props, State> {
           next: data.next,
           previous: data.previous,
           people: data.results,
+          loading: false,
         });
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
+        this.setState({
+          loading: false,
+        });
       });
   };
+
+  handleNextClick = () => {
+    this.fetchData(this.state.next);
+  };
+
+  handlePreviousClick = () => {
+    this.fetchData(this.state.previous);
+  };
   render() {
-    const { people } = this.state;
-    const { next, previous } = this.state;
+    const { next, previous, people, loading } = this.state;
 
     return (
       <div className="results">
         <h3>Results</h3>
-        {next && <button onClick={this.fetchData}>Next</button>}
-        {previous && <button onClick={this.fetchData}>Previous</button>}
-        <div className="people">
-          {people.map((person) => (
-            <div className="person" key={person.name}>
-              <h3>{person.name}</h3>
-              <p>Height: {person.height}</p>
-              <p>Eye Color: {person.eye_color}</p>
+
+        <div>
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            <div>
+              <div className="pagination">
+                {next && (
+                  <button onClick={this.handleNextClick}>Next page</button>
+                )}
+                {previous && (
+                  <button onClick={this.handlePreviousClick}>
+                    Previous page
+                  </button>
+                )}
+              </div>
+              <div className="people">
+                {people.map((person: Person) => (
+                  <div className="person" key={person.name}>
+                    <h3>{person.name}</h3>
+                    <p>Height: {person.height}</p>
+                    <p>Eye Color: {person.eye_color}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
     );
