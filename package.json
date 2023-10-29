@@ -16,7 +16,7 @@
     "react-dom": "^18.2.0"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "**/*": "prettier --write"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
