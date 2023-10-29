@@ -48,8 +48,6 @@ export default class Results extends Component<Props, State> {
         searchValue ? `?search=${searchValue}` : ''
       }`;
 
-    console.log(url);
-
     this.setState({
       loading: true,
     });
@@ -57,7 +55,6 @@ export default class Results extends Component<Props, State> {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         this.setState({
           next: data.next,
           previous: data.previous,
