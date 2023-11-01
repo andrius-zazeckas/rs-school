@@ -16,7 +16,8 @@
     "react-dom": "^18.2.0"
   },
   "lint-staged": {
-    "**/*": "prettier --write"
+    "**/*": "prettier --write",
+    "*.{js,jsx,ts,tsx}": "eslint --fix"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
