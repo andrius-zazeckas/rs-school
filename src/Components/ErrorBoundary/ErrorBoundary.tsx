@@ -25,7 +25,7 @@ export default class ErrorBoundary extends Component<
       error: error,
       errorInfo: errorInfo,
     });
-    // console.error(error, errorInfo);
+    console.error(error, errorInfo);
   }
 
   render() {
