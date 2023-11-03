@@ -4,7 +4,7 @@ import { Header } from './Components/Header/Header';
 import { Search } from './Components/Search/Search';
 import { Results } from './Components/Results/Results';
 
-interface AppProps {}
+type AppProps = object;
 
 export const App: React.FC<AppProps> = () => {
   const [searchValue, setSearchValue] = useState(

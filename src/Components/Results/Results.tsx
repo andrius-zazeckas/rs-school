@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './Results.css';
 
-interface Person {
+type Person = {
   name: string;
   height: string;
   eye_color: string;
-}
+};
 
-interface Props {
+type Props = {
   searchValue: string;
   onSearchChange: (value: string) => void;
-}
+};
 
 export const Results: React.FC<Props> = ({ searchValue }) => {
   const [next, setNext] = useState<string>('');

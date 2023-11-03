@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import './Search.css';
 
-interface SearchProps {
+type SearchProps = {
   searchValue: string;
   onSearchChange: (value: string) => void;
-}
+};
 
 export const Search = (props: SearchProps) => {
   const [searchValue, setSearchValue] = useState(() => {

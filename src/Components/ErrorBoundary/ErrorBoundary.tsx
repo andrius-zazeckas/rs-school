@@ -1,15 +1,15 @@
 import { Component, ErrorInfo } from 'react';
 
-interface ErrorBoundaryProps {
+type ErrorBoundaryProps = {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
   children: React.ReactNode;
-}
+};
 
-interface State {
+type State = {
   error: Error | null;
   errorInfo: ErrorInfo | null;
-}
+};
 
 export default class ErrorBoundary extends Component<
   ErrorBoundaryProps,
