@@ -6,7 +6,7 @@ interface SearchProps {
   onSearchChange: (value: string) => void;
 }
 
-export default function Search(props: SearchProps) {
+export const Search = (props: SearchProps) => {
   const [searchValue, setSearchValue] = useState(() => {
     const savedSearchValue = localStorage.getItem('searchValue');
     return savedSearchValue || props.searchValue;
@@ -30,4 +30,4 @@ export default function Search(props: SearchProps) {
       </div>
     </div>
   );
-}
+};
