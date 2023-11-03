@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './Results.css';
 
 interface Person {
@@ -18,32 +18,35 @@ export const Results: React.FC<Props> = ({ searchValue }) => {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchData = (apiUrl?: string) => {
-    const url =
-      apiUrl ||
-      `https://swapi.dev/api/people/${
-        searchValue ? `?search=${searchValue}` : ''
-      }`;
+  const fetchData = useCallback(
+    (apiUrl?: string) => {
+      const url =
+        apiUrl ||
+        `https://swapi.dev/api/people/${
+          searchValue ? `?search=${searchValue}` : ''
+        }`;
 
-    setLoading(true);
+      setLoading(true);
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        setNext(data.next);
-        setPrevious(data.previous);
-        setPeople(data.results);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-      });
-  };
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          setNext(data.next);
+          setPrevious(data.previous);
+          setPeople(data.results);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        });
+    },
+    [searchValue]
+  );
 
   useEffect(() => {
     fetchData();
-  }, [searchValue]);
+  }, [fetchData, searchValue]);
 
   const handleNextClick = () => {
     fetchData(next);
