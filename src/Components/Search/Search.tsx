@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import './Search.css';
 
 type SearchProps = {
@@ -12,7 +12,7 @@ export const Search = (props: SearchProps) => {
     return savedSearchValue || props.searchValue;
   });
 
-  const handleSearchValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchValueChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
 

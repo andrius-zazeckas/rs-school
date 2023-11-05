@@ -23,16 +23,6 @@ button {
   width: 200px;
 }
 
-header {
-  width: 100%;
-  background-color: #f3f3f3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
 .error-boundary {
   margin: 20px auto;
   display: flex;

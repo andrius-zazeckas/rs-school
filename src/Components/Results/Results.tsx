@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, FC } from 'react';
 import './Results.css';
 
 type Person = {
@@ -12,7 +12,7 @@ type Props = {
   onSearchChange: (value: string) => void;
 };
 
-export const Results: React.FC<Props> = ({ searchValue }) => {
+export const Results: FC<Props> = ({ searchValue }) => {
   const [next, setNext] = useState<string>('');
   const [previous, setPrevious] = useState<string>('');
   const [people, setPeople] = useState<Person[]>([]);
