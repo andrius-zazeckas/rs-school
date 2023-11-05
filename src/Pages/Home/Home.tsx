@@ -5,7 +5,7 @@ import { Results } from '../../Components/Results/Results';
 type HomeProps = object;
 
 export const Home: FC<HomeProps> = () => {
-  const [searchValue, setSearchValue] = useState(
+  const [searchValue, setSearchValue] = useState<string | ''>(
     localStorage.getItem('searchValue') || ''
   );
   const [error, setError] = useState(false);

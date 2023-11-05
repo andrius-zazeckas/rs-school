@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, FC } from 'react';
+import { useState, useEffect, useCallback, FC } from 'react';
 import './Results.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Person = {
   name: string;
@@ -13,47 +14,107 @@ type Props = {
 };
 
 export const Results: FC<Props> = ({ searchValue }) => {
-  const [next, setNext] = useState<string>('');
-  const [previous, setPrevious] = useState<string>('');
+  const [next, setNext] = useState<boolean>(false);
+  const [previous, setPrevious] = useState<boolean>(false);
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [resultsCounter, setResultsCounter] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<string>('20');
+  const [page, setPage] = useState<string>('0');
 
-  const fetchData = useCallback(
-    (apiUrl?: string) => {
-      const url =
-        apiUrl ||
-        `https://swapi.dev/api/people/${
-          searchValue ? `?search=${searchValue}` : ''
-        }`;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-      setLoading(true);
+  useEffect(() => {
+    setNext(false);
+    setPrevious(false);
+    setPage('0');
+  }, [pageSize, searchValue]);
 
-      fetch(url)
-        .then((response) => response.json())
-        .then((data) => {
-          setNext(data.next);
-          setPrevious(data.previous);
-          setPeople(data.results);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-          setLoading(false);
-        });
-    },
-    [searchValue]
-  );
+  const fetchData = useCallback(() => {
+    const api = `https://belka.romakhin.ru/api/v1/rsschoolapi${
+      pageSize ? `?page_size=${pageSize}&` : ''
+    }`;
+
+    const params = new URLSearchParams(location.search);
+    const page = params.get('page');
+
+    const url = `${api}${
+      searchValue ? `search.name=${searchValue}` : page ? `page=${page}` : ''
+    }`;
+
+    setLoading(true);
+
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setPeople(data.results);
+        setLoading(false);
+
+        const maxPage = Math.ceil(data.total / parseInt(pageSize || '20')) - 1;
+        if (parseInt(page || '0') > maxPage) {
+          navigate(`?page=${maxPage}`);
+        }
+        const currentPage = parseInt(page || '0');
+        setPage(currentPage.toString());
+        setNext(true);
+        setPrevious(true);
+
+        if (currentPage === maxPage) {
+          setNext(false);
+        }
+        if (currentPage === 0) {
+          setPrevious(false);
+        }
+
+        const newUrl = new URL(window.location.href);
+        const newSearchParams = new URLSearchParams(newUrl.search);
+
+        if (searchValue !== '') {
+          newSearchParams.set('search.name', searchValue);
+          setResultsCounter(data.results.length);
+        } else {
+          newSearchParams.delete('search.name');
+          setResultsCounter(data.total);
+        }
+
+        const getPageParam = url.split('page=')[1];
+
+        if (url.includes('page')) {
+          newSearchParams.set('page', getPageParam);
+          newSearchParams.delete('search.name');
+        }
+
+        if (getPageParam === '0' || !getPageParam) {
+          newSearchParams.delete('page');
+        }
+
+        newUrl.search = newSearchParams.toString();
+        window.history.pushState({}, '', newUrl.toString());
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      });
+  }, [searchValue, location.search, pageSize, navigate]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, searchValue]);
+  }, [fetchData, searchValue, page, pageSize]);
 
   const handleNextClick = () => {
-    fetchData(next);
+    const nextPage = parseInt(page) + 1;
+    navigate(`?page=${nextPage}`);
   };
 
   const handlePreviousClick = () => {
-    fetchData(previous);
+    const previuosPage = parseInt(page) - 1;
+    navigate(`?page=${previuosPage}`);
   };
 
   return (
@@ -65,12 +126,35 @@ export const Results: FC<Props> = ({ searchValue }) => {
           <div>Loading...</div>
         ) : (
           <div>
-            <div className="pagination">
-              {next && <button onClick={handleNextClick}>Next page</button>}
-              {previous && (
-                <button onClick={handlePreviousClick}>Previous page</button>
-              )}
+            <div>
+              <p>
+                {searchValue?.length > 0
+                  ? `Search query matched ${resultsCounter} results`
+                  : `Total characters: ${resultsCounter}`}
+              </p>
             </div>
+            <div className="pagination">
+              <button disabled={!next} onClick={handleNextClick}>
+                Next page
+              </button>
+
+              <button disabled={!previous} onClick={handlePreviousClick}>
+                Previous page
+              </button>
+              <div className="page-size">
+                <label htmlFor="page-size">Page size:</label>
+                <select
+                  id="page-size"
+                  value={pageSize}
+                  onChange={(e) => setPageSize(e.target.value)}
+                >
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                </select>
+              </div>
+            </div>
+
             <div className="people">
               {people.map((person: Person) => (
                 <div className="person" key={person.name}>
