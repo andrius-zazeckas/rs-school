@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, FC } from 'react';
 import './Results.css';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Person } from '../Person/Person';
 
-type Person = {
+export type TPerson = {
   name: string;
   height: string;
   eye_color: string;
@@ -16,11 +17,11 @@ type Props = {
 export const Results: FC<Props> = ({ searchValue }) => {
   const [next, setNext] = useState<boolean>(false);
   const [previous, setPrevious] = useState<boolean>(false);
-  const [people, setPeople] = useState<Person[]>([]);
+  const [people, setPeople] = useState<TPerson[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [resultsCounter, setResultsCounter] = useState<number>(0);
   const [pageSize, setPageSize] = useState<string>('20');
-  const [page, setPage] = useState<string>('0');
+  const [personDetails, setPersonDetails] = useState<TPerson | null>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,16 +29,17 @@ export const Results: FC<Props> = ({ searchValue }) => {
   useEffect(() => {
     setNext(false);
     setPrevious(false);
-    setPage('0');
-  }, [pageSize, searchValue]);
+    navigate(`/`);
+    setPersonDetails(null);
+  }, [pageSize, navigate]);
+
+  const params = new URLSearchParams(location.search);
+  const page = params.get('page');
 
   const fetchData = useCallback(() => {
     const api = `https://belka.romakhin.ru/api/v1/rsschoolapi${
       pageSize ? `?page_size=${pageSize}&` : ''
     }`;
-
-    const params = new URLSearchParams(location.search);
-    const page = params.get('page');
 
     const url = `${api}${
       searchValue ? `search.name=${searchValue}` : page ? `page=${page}` : ''
@@ -61,7 +63,7 @@ export const Results: FC<Props> = ({ searchValue }) => {
           navigate(`?page=${maxPage}`);
         }
         const currentPage = parseInt(page || '0');
-        setPage(currentPage.toString());
+
         setNext(true);
         setPrevious(true);
 
@@ -77,23 +79,25 @@ export const Results: FC<Props> = ({ searchValue }) => {
 
         if (searchValue !== '') {
           newSearchParams.set('search.name', searchValue);
+          navigate(`?search.name=${searchValue}`);
           setResultsCounter(data.results.length);
         } else {
           newSearchParams.delete('search.name');
           setResultsCounter(data.total);
         }
 
-        const getPageParam = url.split('page=')[1];
-
-        if (url.includes('page')) {
-          newSearchParams.set('page', getPageParam);
-          newSearchParams.delete('search.name');
-        }
-
-        if (getPageParam === '0' || !getPageParam) {
+        if (page === '0' || !page) {
           newSearchParams.delete('page');
         }
 
+        if (personDetails) {
+          newSearchParams.set(
+            'personDetails',
+            JSON.stringify(personDetails.name)
+          );
+        } else {
+          newSearchParams.delete('personDetails');
+        }
         newUrl.search = newSearchParams.toString();
         window.history.pushState({}, '', newUrl.toString());
       })
@@ -101,19 +105,19 @@ export const Results: FC<Props> = ({ searchValue }) => {
         console.error('Error fetching data:', error);
         setLoading(false);
       });
-  }, [searchValue, location.search, pageSize, navigate]);
+  }, [searchValue, pageSize, navigate, page, personDetails]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData, searchValue, page, pageSize]);
 
   const handleNextClick = () => {
-    const nextPage = parseInt(page) + 1;
+    const nextPage = parseInt(page || '0') + 1;
     navigate(`?page=${nextPage}`);
   };
 
   const handlePreviousClick = () => {
-    const previuosPage = parseInt(page) - 1;
+    const previuosPage = parseInt(page || '0') - 1;
     navigate(`?page=${previuosPage}`);
   };
 
@@ -133,36 +137,50 @@ export const Results: FC<Props> = ({ searchValue }) => {
                   : `Total characters: ${resultsCounter}`}
               </p>
             </div>
-            <div className="pagination">
-              <button disabled={!next} onClick={handleNextClick}>
-                Next page
-              </button>
+            {!searchValue && (
+              <div className="pagination">
+                <button disabled={!next} onClick={handleNextClick}>
+                  Next page
+                </button>
 
-              <button disabled={!previous} onClick={handlePreviousClick}>
-                Previous page
-              </button>
-              <div className="page-size">
-                <label htmlFor="page-size">Page size:</label>
-                <select
-                  id="page-size"
-                  value={pageSize}
-                  onChange={(e) => setPageSize(e.target.value)}
-                >
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="30">30</option>
-                </select>
-              </div>
-            </div>
+                <button disabled={!previous} onClick={handlePreviousClick}>
+                  Previous page
+                </button>
 
-            <div className="people">
-              {people.map((person: Person) => (
-                <div className="person" key={person.name}>
-                  <h3>{person.name}</h3>
-                  <p>Height: {person.height}</p>
-                  <p>Eye Color: {person.eye_color}</p>
+                <div className="page-size">
+                  <label htmlFor="page-size">Page size:</label>
+                  <select
+                    id="page-size"
+                    value={pageSize}
+                    onChange={(e) => setPageSize(e.target.value)}
+                  >
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                  </select>
                 </div>
-              ))}
+              </div>
+            )}
+
+            <div className={personDetails ? 'people-details' : ''}>
+              <div className="people">
+                {people.map((person: TPerson) => (
+                  <ul
+                    className="person"
+                    key={person.name}
+                    onClick={() => setPersonDetails(person)}
+                  >
+                    <li>{person.name}</li>
+                    {/* <p>Height: {person.height}</p> */}
+                    {/* <p>Eye Color: {person.eye_color}</p> */}
+                  </ul>
+                ))}
+              </div>
+              {personDetails && (
+                <div onClick={() => setPersonDetails(null)}>
+                  <Person personDetails={personDetails} />
+                </div>
+              )}
             </div>
           </div>
         )}
