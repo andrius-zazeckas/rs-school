@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, FC } from 'react';
+import { useState, useEffect, FC } from 'react';
 import './Results.css';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Person } from '../Person/Person';
+import { getPeopleData } from '../../api/getPeopleData';
 
 export type TPerson = {
   name: string;
@@ -22,8 +23,8 @@ export const Results: FC<Props> = ({ searchValue }) => {
   const [resultsCounter, setResultsCounter] = useState<number>(0);
   const [pageSize, setPageSize] = useState<string>('20');
   const [personDetails, setPersonDetails] = useState<TPerson | null>(null);
+  const [searchParams] = useSearchParams();
 
-  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,83 +34,33 @@ export const Results: FC<Props> = ({ searchValue }) => {
     setPersonDetails(null);
   }, [pageSize, navigate]);
 
-  const params = new URLSearchParams(location.search);
-  const page = params.get('page');
-
-  const fetchData = useCallback(() => {
-    const api = `https://belka.romakhin.ru/api/v1/rsschoolapi${
-      pageSize ? `?page_size=${pageSize}&` : ''
-    }`;
-
-    const url = `${api}${
-      searchValue ? `search.name=${searchValue}` : page ? `page=${page}` : ''
-    }`;
-
-    setLoading(true);
-
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setPeople(data.results);
-        setLoading(false);
-
-        const maxPage = Math.ceil(data.total / parseInt(pageSize || '20')) - 1;
-        if (parseInt(page || '0') > maxPage) {
-          navigate(`?page=${maxPage}`);
-        }
-        const currentPage = parseInt(page || '0');
-
-        setNext(true);
-        setPrevious(true);
-
-        if (currentPage === maxPage) {
-          setNext(false);
-        }
-        if (currentPage === 0) {
-          setPrevious(false);
-        }
-
-        const newUrl = new URL(window.location.href);
-        const newSearchParams = new URLSearchParams(newUrl.search);
-
-        if (searchValue !== '') {
-          newSearchParams.set('search.name', searchValue);
-          navigate(`?search.name=${searchValue}`);
-          setResultsCounter(data.results.length);
-        } else {
-          newSearchParams.delete('search.name');
-          setResultsCounter(data.total);
-        }
-
-        if (page === '0' || !page) {
-          newSearchParams.delete('page');
-        }
-
-        if (personDetails) {
-          newSearchParams.set(
-            'personDetails',
-            JSON.stringify(personDetails.name)
-          );
-        } else {
-          newSearchParams.delete('personDetails');
-        }
-        newUrl.search = newSearchParams.toString();
-        window.history.pushState({}, '', newUrl.toString());
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-      });
-  }, [searchValue, pageSize, navigate, page, personDetails]);
+  const page = searchParams.get('page');
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData, searchValue, page, pageSize]);
+    const newUrl = new URL(window.location.href);
+    const newSearchParams = new URLSearchParams(newUrl.search);
+    if (personDetails) {
+      newSearchParams.set('personDetails', JSON.stringify(personDetails.name));
+    } else {
+      newSearchParams.delete('personDetails');
+    }
+    newUrl.search = newSearchParams.toString();
+    window.history.pushState({}, '', newUrl.toString());
+  }, [personDetails]);
+
+  useEffect(() => {
+    getPeopleData({
+      page,
+      pageSize,
+      searchValue,
+      setLoading,
+      setPeople,
+      navigate,
+      setNext,
+      setPrevious,
+      setResultsCounter,
+    });
+  }, [searchValue, page, pageSize, navigate, setNext, setPrevious]);
 
   const handleNextClick = () => {
     const nextPage = parseInt(page || '0') + 1;
@@ -178,7 +129,10 @@ export const Results: FC<Props> = ({ searchValue }) => {
               </div>
               {personDetails && (
                 <div onClick={() => setPersonDetails(null)}>
-                  <Person personDetails={personDetails} />
+                  <Person
+                    personDetails={personDetails}
+                    setPersonDetails={setPersonDetails}
+                  />
                 </div>
               )}
             </div>
