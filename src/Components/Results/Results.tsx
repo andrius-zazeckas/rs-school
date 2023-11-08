@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Person } from '../Person/Person';
 import { getPeopleData } from '../../api/getPeopleData';
 import { SearchContext } from '../Context/SearchContext';
+import { PeopleContext } from '../Context/PeopleContext';
 
 export type TPerson = {
   name: string;
@@ -15,11 +16,11 @@ export const Results: FC = () => {
   const { searchValue, setSearchValue } = useContext(SearchContext);
   const [next, setNext] = useState<boolean>(false);
   const [previous, setPrevious] = useState<boolean>(false);
-  const [people, setPeople] = useState<TPerson[]>([]);
+  const { people, setPeople, personDetails, setPersonDetails } =
+    useContext(PeopleContext);
   const [loading, setLoading] = useState<boolean>(false);
   const [resultsCounter, setResultsCounter] = useState<number>(0);
   const [pageSize, setPageSize] = useState<string>('20');
-  const [personDetails, setPersonDetails] = useState<TPerson | null>(null);
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export const Results: FC = () => {
     setPrevious(false);
     navigate(`/`);
     setPersonDetails(null);
-  }, [pageSize, navigate]);
+  }, [pageSize, navigate, setPersonDetails]);
 
   const savedSearchValue = localStorage.getItem('searchValue');
   useEffect(() => {
@@ -64,7 +65,7 @@ export const Results: FC = () => {
       setPrevious,
       setResultsCounter,
     });
-  }, [searchValue, page, pageSize, navigate, setNext, setPrevious]);
+  }, [searchValue, page, pageSize, navigate, setNext, setPrevious, setPeople]);
 
   const handleNextClick = () => {
     const nextPage = parseInt(page || '0') + 1;
@@ -92,51 +93,53 @@ export const Results: FC = () => {
                   : `Total characters: ${resultsCounter}`}
               </p>
             </div>
-            {!searchValue && (
-              <div className="pagination">
-                <button disabled={!next} onClick={handleNextClick}>
-                  Next page
-                </button>
+            {/* {!searchValue && ( */}
+            <div className="pagination">
+              <button disabled={!next} onClick={handleNextClick}>
+                Next page
+              </button>
 
-                <button disabled={!previous} onClick={handlePreviousClick}>
-                  Previous page
-                </button>
+              <button disabled={!previous} onClick={handlePreviousClick}>
+                Previous page
+              </button>
 
-                <div className="page-size">
-                  <label htmlFor="page-size">Page size:</label>
-                  <select
-                    id="page-size"
-                    value={pageSize}
-                    onChange={(e) => setPageSize(e.target.value)}
-                  >
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="30">30</option>
-                  </select>
-                </div>
+              <div className="page-size">
+                <label htmlFor="page-size">Page size:</label>
+                <select
+                  id="page-size"
+                  value={pageSize}
+                  onChange={(e) => setPageSize(e.target.value)}
+                >
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                </select>
               </div>
-            )}
+            </div>
+            {/* )} */}
 
             <div className={personDetails ? 'people-details' : ''}>
-              <div className="people">
+              <div
+                className="people"
+                onClick={() => (personDetails ? setPersonDetails(null) : '')}
+              >
                 {people.map((person: TPerson) => (
                   <ul
                     className="person"
                     key={person.name}
                     onClick={() => setPersonDetails(person)}
                   >
-                    <li>{person.name}</li>
-                    {/* <p>Height: {person.height}</p> */}
-                    {/* <p>Eye Color: {person.eye_color}</p> */}
+                    <div>
+                      <li className="person-name">{person.name}</li>
+                      <li>Height: {person.height}</li>
+                      <li>Eye Color: {person.eye_color}</li>
+                    </div>
                   </ul>
                 ))}
               </div>
-              {personDetails && (
+              {personDetails && !loading && (
                 <div onClick={() => setPersonDetails(null)}>
-                  <Person
-                    personDetails={personDetails}
-                    setPersonDetails={setPersonDetails}
-                  />
+                  <Person />
                 </div>
               )}
             </div>

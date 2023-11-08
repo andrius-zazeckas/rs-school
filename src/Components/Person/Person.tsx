@@ -1,18 +1,15 @@
-import type { TPerson } from '../Results/Results';
+import { useContext } from 'react';
+import { PeopleContext } from '../Context/PeopleContext';
 
-export const Person = ({
-  personDetails,
-  setPersonDetails,
-}: {
-  personDetails: TPerson;
-  setPersonDetails: (value: TPerson | null) => void;
-}) => {
+export const Person = () => {
+  const { personDetails, setPersonDetails } = useContext(PeopleContext);
+
   return (
     <div className="person-details">
       <button onClick={() => setPersonDetails(null)}>Close</button>
-      <p>Name: {personDetails.name}</p>
-      <p>Height: {personDetails.height}</p>
-      <p>Eye Color: {personDetails.eye_color}</p>
+      <p>Name: {personDetails?.name}</p>
+      <p>Height: {personDetails?.height}</p>
+      <p>Eye Color: {personDetails?.eye_color}</p>
     </div>
   );
 };

@@ -16,7 +16,11 @@ export const getPeopleData = ({
   }`;
 
   const url = `${api}${
-    searchValue ? `search.name=${searchValue}` : page ? `page=${page}` : ''
+    searchValue
+      ? `search.name=${searchValue}${page ? `&page=${page}` : ''}`
+      : page
+      ? `page=${page}`
+      : ''
   }`;
 
   setLoading(true);
@@ -53,7 +57,7 @@ export const getPeopleData = ({
 
       if (searchValue !== '') {
         newSearchParams.set('search.name', searchValue);
-        navigate(`?search.name=${searchValue}`);
+        navigate(`?search.name=${searchValue}${page ? `&page=${page}` : ''}`);
         setResultsCounter(data.results.length);
       }
       if (searchValue === '') {
