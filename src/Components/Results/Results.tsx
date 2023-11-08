@@ -1,8 +1,9 @@
-import { useState, useEffect, FC } from 'react';
+import { useState, useEffect, FC, useContext } from 'react';
 import './Results.css';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Person } from '../Person/Person';
 import { getPeopleData } from '../../api/getPeopleData';
+import { SearchContext } from '../Context/SearchContext';
 
 export type TPerson = {
   name: string;
@@ -10,12 +11,8 @@ export type TPerson = {
   eye_color: string;
 };
 
-type Props = {
-  searchValue: string;
-  onSearchChange: (value: string) => void;
-};
-
-export const Results: FC<Props> = ({ searchValue }) => {
+export const Results: FC = () => {
+  const { searchValue, setSearchValue } = useContext(SearchContext);
   const [next, setNext] = useState<boolean>(false);
   const [previous, setPrevious] = useState<boolean>(false);
   const [people, setPeople] = useState<TPerson[]>([]);
@@ -33,6 +30,13 @@ export const Results: FC<Props> = ({ searchValue }) => {
     navigate(`/`);
     setPersonDetails(null);
   }, [pageSize, navigate]);
+
+  const savedSearchValue = localStorage.getItem('searchValue');
+  useEffect(() => {
+    if (savedSearchValue) {
+      setSearchValue(savedSearchValue);
+    }
+  }, []);
 
   const page = searchParams.get('page');
 

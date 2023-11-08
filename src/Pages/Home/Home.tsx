@@ -5,14 +5,7 @@ import { Results } from '../../Components/Results/Results';
 type HomeProps = object;
 
 export const Home: FC<HomeProps> = () => {
-  const [searchValue, setSearchValue] = useState<string | ''>(
-    localStorage.getItem('searchValue') || ''
-  );
   const [error, setError] = useState(false);
-
-  const handleSearchChange = (value: string) => {
-    setSearchValue(value);
-  };
 
   const throwNewError = () => {
     setError(true);
@@ -25,8 +18,8 @@ export const Home: FC<HomeProps> = () => {
   return (
     <div className="wrapper">
       <button onClick={throwNewError}>Error test button</button>
-      <Search onSearchChange={handleSearchChange} searchValue={searchValue} />
-      <Results searchValue={searchValue} onSearchChange={handleSearchChange} />
+      <Search />
+      <Results />
     </div>
   );
 };

@@ -55,7 +55,8 @@ export const getPeopleData = ({
         newSearchParams.set('search.name', searchValue);
         navigate(`?search.name=${searchValue}`);
         setResultsCounter(data.results.length);
-      } else {
+      }
+      if (searchValue === '') {
         newSearchParams.delete('search.name');
         setResultsCounter(data.total);
       }
@@ -63,6 +64,9 @@ export const getPeopleData = ({
       if (page === '0' || !page) {
         newSearchParams.delete('page');
       }
+
+      newUrl.search = newSearchParams.toString();
+      window.history.pushState({}, '', newUrl);
     })
     .catch((error) => {
       console.error('Error fetching data:', error);

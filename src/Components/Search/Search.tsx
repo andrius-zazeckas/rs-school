@@ -1,32 +1,33 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useContext, useState } from 'react';
 import './Search.css';
+import { SearchContext } from '../Context/SearchContext';
 
-type SearchProps = {
-  searchValue: string;
-  onSearchChange: (value: string) => void;
-};
+export const Search = () => {
+  const { setSearchValue } = useContext(SearchContext);
+  const [inputValue, setInputValue] = useState('');
 
-export const Search = (props: SearchProps) => {
-  const [searchValue, setSearchValue] = useState(() => {
-    const savedSearchValue = localStorage.getItem('searchValue');
-    return savedSearchValue || props.searchValue;
-  });
-
-  const handleSearchValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSearchValue(inputValue.trim());
+    localStorage.setItem('searchValue', inputValue.trim());
   };
 
-  const handleSearch = () => {
-    localStorage.setItem('searchValue', searchValue.trim());
-    props.onSearchChange(searchValue);
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
   };
 
   return (
     <div className="search">
       <h3>Search for a character</h3>
       <div className="search-bar">
-        <input value={searchValue} onChange={handleSearchValueChange} />
-        <button onClick={handleSearch}>Search</button>
+        <form onSubmit={handleSearch}>
+          <input
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Search for a character"
+          />
+          <button>Search</button>
+        </form>
       </div>
     </div>
   );
