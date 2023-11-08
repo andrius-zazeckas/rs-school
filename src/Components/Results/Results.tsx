@@ -36,7 +36,7 @@ export const Results: FC = () => {
     if (savedSearchValue) {
       setSearchValue(savedSearchValue);
     }
-  }, []);
+  }, [savedSearchValue, setSearchValue]);
 
   const page = searchParams.get('page');
 
