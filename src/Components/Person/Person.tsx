@@ -5,11 +5,15 @@ export const Person = () => {
   const { personDetails, setPersonDetails } = useContext(PeopleContext);
 
   return (
-    <div className="person-details">
-      <button onClick={() => setPersonDetails(null)}>Close</button>
-      <p>Name: {personDetails?.name}</p>
-      <p>Height: {personDetails?.height}</p>
-      <p>Eye Color: {personDetails?.eye_color}</p>
-    </div>
+    <>
+      {personDetails && (
+        <div className="person-details" onClick={() => setPersonDetails(null)}>
+          <button onClick={() => setPersonDetails(null)}>Close</button>
+          <p>Name: {personDetails?.name}</p>
+          <p>Height: {personDetails?.height}</p>
+          <p>Eye Color: {personDetails?.eye_color}</p>
+        </div>
+      )}
+    </>
   );
 };

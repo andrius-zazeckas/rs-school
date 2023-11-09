@@ -1,10 +1,17 @@
-import { ChangeEvent, useContext, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import './Search.css';
 import { SearchContext } from '../Context/SearchContext';
 
 export const Search = () => {
   const { setSearchValue } = useContext(SearchContext);
   const [inputValue, setInputValue] = useState('');
+
+  useEffect(() => {
+    const savedSearchValue = localStorage.getItem('searchValue');
+    if (savedSearchValue) {
+      setInputValue(savedSearchValue);
+    }
+  }, []);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

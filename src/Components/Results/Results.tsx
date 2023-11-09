@@ -1,10 +1,12 @@
 import { useState, useEffect, FC, useContext } from 'react';
 import './Results.css';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Person } from '../Person/Person';
 import { getPeopleData } from '../../api/getPeopleData';
 import { SearchContext } from '../Context/SearchContext';
 import { PeopleContext } from '../Context/PeopleContext';
+import { Person } from '../Person/Person';
+import { Pagination } from '../Pagination/Pagination';
+import { PageSize } from '../PageSize/PageSize';
 
 export type TPerson = {
   name: string;
@@ -25,19 +27,20 @@ export const Results: FC = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setNext(false);
-    setPrevious(false);
-    navigate(`/`);
-    setPersonDetails(null);
-  }, [pageSize, navigate, setPersonDetails]);
+  // useEffect(() => {
+  //   setNext(false);
+  //   setPrevious(false);
+  //   // navigate(`/`);
+  //   // setPersonDetails(null);
+  // }, [pageSize]);
 
   const savedSearchValue = localStorage.getItem('searchValue');
   useEffect(() => {
+    setPersonDetails(null);
     if (savedSearchValue) {
       setSearchValue(savedSearchValue);
     }
-  }, [savedSearchValue, setSearchValue]);
+  }, [savedSearchValue, setSearchValue, setPersonDetails]);
 
   const page = searchParams.get('page');
 
@@ -77,6 +80,11 @@ export const Results: FC = () => {
     navigate(`?page=${previuosPage}`);
   };
 
+  const handlePersonClick = (person: TPerson) => {
+    setPersonDetails(person);
+    // navigate(`/results/personDetails/?personDetails=${person.name}`);
+  };
+
   return (
     <div className="results">
       <h3>Results</h3>
@@ -93,55 +101,36 @@ export const Results: FC = () => {
                   : `Total characters: ${resultsCounter}`}
               </p>
             </div>
-            {/* {!searchValue && ( */}
             <div className="pagination">
-              <button disabled={!next} onClick={handleNextClick}>
-                Next page
-              </button>
+              <Pagination
+                handleNextClick={handleNextClick}
+                handlePreviousClick={handlePreviousClick}
+                next={next}
+                previous={previous}
+              />
 
-              <button disabled={!previous} onClick={handlePreviousClick}>
-                Previous page
-              </button>
-
-              <div className="page-size">
-                <label htmlFor="page-size">Page size:</label>
-                <select
-                  id="page-size"
-                  value={pageSize}
-                  onChange={(e) => setPageSize(e.target.value)}
-                >
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="30">30</option>
-                </select>
-              </div>
+              <PageSize pageSize={pageSize} setPageSize={setPageSize} />
             </div>
-            {/* )} */}
 
-            <div className={personDetails ? 'people-details' : ''}>
-              <div
-                className="people"
-                onClick={() => (personDetails ? setPersonDetails(null) : '')}
-              >
+            <div
+              className="people-details"
+              onClick={() => (personDetails ? setPersonDetails(null) : '')}
+            >
+              <div className="people">
                 {people.map((person: TPerson) => (
-                  <ul
+                  <div
                     className="person"
                     key={person.name}
-                    onClick={() => setPersonDetails(person)}
+                    onClick={() => handlePersonClick(person)}
                   >
-                    <div>
-                      <li className="person-name">{person.name}</li>
-                      <li>Height: {person.height}</li>
-                      <li>Eye Color: {person.eye_color}</li>
-                    </div>
-                  </ul>
+                    <p className="person-name">{person.name}</p>
+                    <p>Height: {person.height}</p>
+                    <p>Eye Color: {person.eye_color}</p>
+                  </div>
                 ))}
               </div>
-              {personDetails && !loading && (
-                <div onClick={() => setPersonDetails(null)}>
-                  <Person />
-                </div>
-              )}
+              {loading ? <div>Loading...</div> : <Person />}
+              {/* <Outlet /> */}
             </div>
           </div>
         )}

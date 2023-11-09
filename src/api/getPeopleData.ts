@@ -1,6 +1,6 @@
 import { PeopleDataType } from './types';
 
-export const getPeopleData = ({
+export const getPeopleData = async ({
   page,
   pageSize,
   searchValue,
@@ -11,69 +11,71 @@ export const getPeopleData = ({
   setPrevious,
   setResultsCounter,
 }: PeopleDataType) => {
-  const api = `https://belka.romakhin.ru/api/v1/rsschoolapi${
-    pageSize ? `?page_size=${pageSize}&` : ''
-  }`;
+  const api = 'https://belka.romakhin.ru/api/v1/rsschoolapi';
+  const params = new URLSearchParams();
 
-  const url = `${api}${
-    searchValue
-      ? `search.name=${searchValue}${page ? `&page=${page}` : ''}`
-      : page
-      ? `page=${page}`
-      : ''
-  }`;
+  if (pageSize) {
+    params.append('page_size', pageSize);
+  }
+  if (searchValue) {
+    params.append('search.name', searchValue);
+  }
+  if (page) {
+    params.append('page', page);
+  }
 
+  const url = `${api}?${params.toString()}`;
   setLoading(true);
 
-  fetch(url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      setPeople(data.results);
-      setLoading(false);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
 
-      const maxPage = Math.ceil(data.total / parseInt(pageSize || '20')) - 1;
-      if (parseInt(page || '0') > maxPage) {
-        navigate(`?page=${maxPage}`);
-      }
-      const currentPage = parseInt(page || '0');
+    setPeople(data.results);
 
-      setNext(true);
-      setPrevious(true);
+    setLoading(false);
 
-      if (currentPage === maxPage) {
-        setNext(false);
-      }
-      if (currentPage === 0) {
-        setPrevious(false);
-      }
+    const maxPage = Math.ceil(data.total / parseInt(pageSize || '20')) - 1;
 
-      const newUrl = new URL(window.location.href);
-      const newSearchParams = new URLSearchParams(newUrl.search);
+    if (parseInt(page || '0') > maxPage) {
+      navigate(`?page=${maxPage}`);
+    }
 
-      if (searchValue !== '') {
-        newSearchParams.set('search.name', searchValue);
-        navigate(`?search.name=${searchValue}${page ? `&page=${page}` : ''}`);
-        setResultsCounter(data.results.length);
-      }
-      if (searchValue === '') {
-        newSearchParams.delete('search.name');
-        setResultsCounter(data.total);
-      }
+    const currentPage = parseInt(page || '0');
 
-      if (page === '0' || !page) {
-        newSearchParams.delete('page');
-      }
+    setNext(true);
+    setPrevious(true);
 
-      newUrl.search = newSearchParams.toString();
-      window.history.pushState({}, '', newUrl);
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    });
+    if (currentPage === maxPage) {
+      setNext(false);
+    }
+    if (currentPage === 0) {
+      setPrevious(false);
+    }
+
+    const newUrl = new URL(window.location.href);
+    const newSearchParams = new URLSearchParams(newUrl.search);
+
+    if (searchValue !== '') {
+      newSearchParams.set('search.name', searchValue);
+      navigate(`?search.name=${searchValue}${page ? `&page=${page}` : ''}`);
+      setResultsCounter(data.total);
+    } else {
+      newSearchParams.delete('search.name');
+      setResultsCounter(data.total);
+    }
+
+    if (page === '0' || !page) {
+      newSearchParams.delete('page');
+    }
+
+    newUrl.search = newSearchParams.toString();
+    window.history.pushState({}, '', newUrl);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    setLoading(false);
+  }
 };
