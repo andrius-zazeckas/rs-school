@@ -77,5 +77,7 @@ export const getPeopleData = async ({
   } catch (error) {
     console.error('Error fetching data:', error);
     setLoading(false);
+    navigate('/error');
+    throw new Error('Error fetching data:', { cause: error });
   }
 };

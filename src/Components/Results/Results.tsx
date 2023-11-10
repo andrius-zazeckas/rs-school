@@ -94,44 +94,50 @@ export const Results: FC = () => {
           <div>Loading...</div>
         ) : (
           <div>
-            <div>
-              <p>
-                {searchValue?.length > 0
-                  ? `Search query matched ${resultsCounter} results`
-                  : `Total characters: ${resultsCounter}`}
-              </p>
-            </div>
-            <div className="pagination">
-              <Pagination
-                handleNextClick={handleNextClick}
-                handlePreviousClick={handlePreviousClick}
-                next={next}
-                previous={previous}
-              />
+            {people.length === 0 ? (
+              <p className="no-results">No results found</p>
+            ) : (
+              <div>
+                <div>
+                  <p className="results-counter">
+                    {searchValue?.length > 0
+                      ? `Search query matched ${resultsCounter} results`
+                      : `Total characters: ${resultsCounter}`}
+                  </p>
+                </div>
+                <div className="pagination">
+                  <Pagination
+                    handleNextClick={handleNextClick}
+                    handlePreviousClick={handlePreviousClick}
+                    next={next}
+                    previous={previous}
+                  />
 
-              <PageSize pageSize={pageSize} setPageSize={setPageSize} />
-            </div>
+                  <PageSize pageSize={pageSize} setPageSize={setPageSize} />
+                </div>
 
-            <div
-              className="people-details"
-              onClick={() => (personDetails ? setPersonDetails(null) : '')}
-            >
-              <div className="people">
-                {people.map((person: TPerson) => (
-                  <div
-                    className="person"
-                    key={person.name}
-                    onClick={() => handlePersonClick(person)}
-                  >
-                    <p className="person-name">{person.name}</p>
-                    <p>Height: {person.height}</p>
-                    <p>Eye Color: {person.eye_color}</p>
+                <div
+                  className="people-details"
+                  onClick={() => (personDetails ? setPersonDetails(null) : '')}
+                >
+                  <div className="people">
+                    {people.map((person: TPerson) => (
+                      <div
+                        className="person"
+                        key={person.name}
+                        onClick={() => handlePersonClick(person)}
+                      >
+                        <p className="person-name">{person.name}</p>
+                        <p>Height: {person.height}</p>
+                        <p>Eye Color: {person.eye_color}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                  {loading ? <div>Loading...</div> : <Person />}
+                  {/* <Outlet /> */}
+                </div>
               </div>
-              {loading ? <div>Loading...</div> : <Person />}
-              {/* <Outlet /> */}
-            </div>
+            )}
           </div>
         )}
       </div>
