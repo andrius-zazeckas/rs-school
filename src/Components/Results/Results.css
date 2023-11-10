@@ -40,10 +40,19 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   padding: 20px;
   border-radius: 8px;
-  background-color: #f3f3f3;
+  background-color: #cbc8c8;
   cursor: pointer;
   min-width: 400px;
   height: 400px;
+  text-align: center;
+}
+
+.close-button {
+  background-color: #ffffff;
+}
+
+button:hover {
+  background-color: rgb(178, 206, 244);
 }
 
 .pagination {
@@ -60,6 +69,10 @@
 
 .pagination button:disabled {
   cursor: not-allowed;
+}
+
+.pagination button:disabled:hover {
+  background-color: #f3f3f3;
 }
 
 .page-size {
